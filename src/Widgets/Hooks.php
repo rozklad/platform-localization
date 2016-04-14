@@ -10,6 +10,12 @@ class Hooks {
 
 		$active_language = Language::where( 'locale', Language::getActiveLanguageLocale() )->first();
 
+		if ( !$languages )
+			return null;
+
+		if ( !$active_language )
+			return null;
+
 		return view('sanatorium/localization::hooks/languages', compact('languages', 'active_language', 'class'));
 	}
 

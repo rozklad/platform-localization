@@ -146,24 +146,7 @@ return [
 
 	'routes' => function(ExtensionInterface $extension, Application $app)
 	{
-		Route::get('langtest', function(){
-
-			/*
-			$model = new Sanatorium\Localization\Models\Langtest;
-			$model->titltest = 'Cesky titulek';
-			$model->save();
-
-			$model = Sanatorium\Localization\Models\Langtest::find(2);
-			$model->titltest = 'Slovensky titulek';
-			$model->save([], 'sk');
-			*/
-			
-			$model = Sanatorium\Localization\Models\Langtest::find(2);
-			dd($model->translation('sk'));
-			dd($model);
-
-		});
-
+		
 		Route::group([
 				'prefix'    => admin_uri().'/localization/translations',
 				'namespace' => 'Sanatorium\Localization\Controllers\Admin',

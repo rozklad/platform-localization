@@ -1,4 +1,7 @@
 <?php namespace Sanatorium\Localization\Models;
+/**
+ * @todo: delete
+ */
 
 use Cartalyst\Attributes\EntityInterface;
 use Illuminate\Database\Eloquent\Model;

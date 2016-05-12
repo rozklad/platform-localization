@@ -19,24 +19,6 @@ class Locale
 
             app()->setLocale(Session::get('active_language_locale'));
 
-        } else {
-
-            $country = \Sanatorium\Addresses\Widgets\Hooks::suggestCountry();
-
-            if ( $country == 'France' ) {
-
-                app()->setLocale('fr');
-                request()->session()->put('active_currency_id', 3);
-
-            }
-
-            if ( $country == 'United Kingdom' ) {
-
-                request()->session()->put('active_currency_id', 4);
-
-            }
-
-
         }
 
         return $next($request);

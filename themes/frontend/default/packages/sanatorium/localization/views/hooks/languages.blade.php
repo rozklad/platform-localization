@@ -17,7 +17,7 @@
 
 	<ul class="{{ $class }}">
 		
-		<li class="dropdown" class="language language-active language-dropdown-li language-{{ $active_language->locale }}">
+		<li class="dropdown" class="language language-active language-dropdown-item language-{{ $active_language->locale }}">
 
 			<a href="#" class="dropdown-toggle" role="button" data-toggle="dropdown">
 
@@ -41,7 +41,7 @@
 				
 				@foreach($languages as $language)
 
-					<li class="language-{{ $language }} {{ $language->locale == $active_language->locale ? 'language-active' : '' }}">
+					<li class="language-item language-{{ $language->locale }} {{ $language->locale == $active_language->locale ? 'language-active' : '' }}">
 						<a href="{{ route('sanatorium.localization.languages.set', $language->locale) }}">
 							<span class="language-flag">
 								<img src="{{ Asset::getUrl($flag_folder.$flag_names[$language->locale]) }}">

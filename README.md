@@ -28,11 +28,18 @@ Add following line to app/Http/Kernel.php
 
 ## Documentation
 
-No documentation available.
+### Languages
+
+Manage languages available for the users on the site.
+
+### Translations
+
+Manage string translation in localization files.
 
 ## Changelog
 
-Changelog not available.
+- 0.3.0 - 2016-23-05 - Translation strings manager
+- 0.2.3 - 2016-22-05 - Basic readme file
 
 ## Support
 

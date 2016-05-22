@@ -67,7 +67,7 @@ return [
 	|
 	*/
 
-	'version' => '0.2.2',
+	'version' => '0.3.0',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -123,9 +123,8 @@ return [
 
 	'providers' => [
 
-		'Sanatorium\Localization\Providers\TranslationsServiceProvider',
 		'Sanatorium\Localization\Providers\LanguageServiceProvider',
-		'Sanatorium\Localization\Providers\LangtestServiceProvider',
+		'Sanatorium\Localization\Providers\TranslationServiceProvider',
 
 	],
 
@@ -146,35 +145,7 @@ return [
 
 	'routes' => function(ExtensionInterface $extension, Application $app)
 	{
-		
 		Route::group([
-				'prefix'    => admin_uri().'/localization/translations',
-				'namespace' => 'Sanatorium\Localization\Controllers\Admin',
-			], function()
-			{
-				Route::get('/' , ['as' => 'admin.sanatorium.localization.translations.all', 'uses' => 'TranslationsController@index']);
-				Route::post('/', ['as' => 'admin.sanatorium.localization.translations.all', 'uses' => 'TranslationsController@executeAction']);
-
-				Route::get('grid', ['as' => 'admin.sanatorium.localization.translations.grid', 'uses' => 'TranslationsController@grid']);
-
-				Route::get('create' , ['as' => 'admin.sanatorium.localization.translations.create', 'uses' => 'TranslationsController@create']);
-				Route::post('create', ['as' => 'admin.sanatorium.localization.translations.create', 'uses' => 'TranslationsController@store']);
-
-				Route::get('{id}'   , ['as' => 'admin.sanatorium.localization.translations.edit'  , 'uses' => 'TranslationsController@edit']);
-				Route::post('{id}'  , ['as' => 'admin.sanatorium.localization.translations.edit'  , 'uses' => 'TranslationsController@update']);
-
-				Route::delete('{id}', ['as' => 'admin.sanatorium.localization.translations.delete', 'uses' => 'TranslationsController@delete']);
-			});
-
-		Route::group([
-			'prefix'    => 'localization/translations',
-			'namespace' => 'Sanatorium\Localization\Controllers\Frontend',
-		], function()
-		{
-			Route::get('/', ['as' => 'sanatorium.localization.translations.index', 'uses' => 'TranslationsController@index']);
-		});
-
-					Route::group([
 				'prefix'    => admin_uri().'/localization/languages',
 				'namespace' => 'Sanatorium\Localization\Controllers\Admin',
 			], function()
@@ -203,31 +174,26 @@ return [
 			Route::get('{locale}', ['as' => 'sanatorium.localization.languages.set', 'uses' => 'LanguagesController@set']);
 		});
 
-					Route::group([
-				'prefix'    => admin_uri().'/localization/langtests',
+		Route::group([
+				'prefix'    => admin_uri().'/localization/translations',
 				'namespace' => 'Sanatorium\Localization\Controllers\Admin',
 			], function()
 			{
-				Route::get('/' , ['as' => 'admin.sanatorium.localization.langtests.all', 'uses' => 'LangtestsController@index']);
-				Route::post('/', ['as' => 'admin.sanatorium.localization.langtests.all', 'uses' => 'LangtestsController@executeAction']);
+				Route::get('/' , ['as' => 'admin.sanatorium.localization.translations.all', 'uses' => 'TranslationsController@index']);
 
-				Route::get('grid', ['as' => 'admin.sanatorium.localization.langtests.grid', 'uses' => 'LangtestsController@grid']);
+				Route::get('namespace' , ['as' => 'admin.sanatorium.localization.translations.namespace', 'uses' => 'TranslationsController@namespace']);
 
-				Route::get('create' , ['as' => 'admin.sanatorium.localization.langtests.create', 'uses' => 'LangtestsController@create']);
-				Route::post('create', ['as' => 'admin.sanatorium.localization.langtests.create', 'uses' => 'LangtestsController@store']);
-
-				Route::get('{id}'   , ['as' => 'admin.sanatorium.localization.langtests.edit'  , 'uses' => 'LangtestsController@edit']);
-				Route::post('{id}'  , ['as' => 'admin.sanatorium.localization.langtests.edit'  , 'uses' => 'LangtestsController@update']);
-
-				Route::delete('{id}', ['as' => 'admin.sanatorium.localization.langtests.delete', 'uses' => 'LangtestsController@delete']);
+				Route::post('edit' , ['as' => 'admin.sanatorium.localization.translations.update', 'uses' => 'TranslationsController@update']);
 			});
 
 		Route::group([
-			'prefix'    => 'localization/langtests',
-			'namespace' => 'Sanatorium\Localization\Controllers\Frontend',
+			'prefix'    => admin_uri().'/localization/strings',
+			'namespace' => 'Sanatorium\Localization\Controllers\Admin',
 		], function()
 		{
-			Route::get('/', ['as' => 'sanatorium.localization.langtests.index', 'uses' => 'LangtestsController@index']);
+			Route::get('/' , ['as' => 'admin.sanatorium.localization.strings.all', 'uses' => 'StringsController@index']);
+
+			Route::get('load' , ['as' => 'admin.sanatorium.localization.strings.load', 'uses' => 'StringsController@load']);
 		});
 	},
 
@@ -272,39 +238,6 @@ return [
 
 	'permissions' => function(Permissions $permissions)
 	{
-		$permissions->group('translations', function($g)
-		{
-			$g->name = 'Translations';
-
-			$g->permission('translations.index', function($p)
-			{
-				$p->label = trans('sanatorium/localization::translations/permissions.index');
-
-				$p->controller('Sanatorium\Localization\Controllers\Admin\TranslationsController', 'index, grid');
-			});
-
-			$g->permission('translations.create', function($p)
-			{
-				$p->label = trans('sanatorium/localization::translations/permissions.create');
-
-				$p->controller('Sanatorium\Localization\Controllers\Admin\TranslationsController', 'create, store');
-			});
-
-			$g->permission('translations.edit', function($p)
-			{
-				$p->label = trans('sanatorium/localization::translations/permissions.edit');
-
-				$p->controller('Sanatorium\Localization\Controllers\Admin\TranslationsController', 'edit, update');
-			});
-
-			$g->permission('translations.delete', function($p)
-			{
-				$p->label = trans('sanatorium/localization::translations/permissions.delete');
-
-				$p->controller('Sanatorium\Localization\Controllers\Admin\TranslationsController', 'delete');
-			});
-		});
-
 		$permissions->group('language', function($g)
 		{
 			$g->name = 'Languages';
@@ -338,36 +271,36 @@ return [
 			});
 		});
 
-		$permissions->group('langtest', function($g)
+		$permissions->group('translation', function($g)
 		{
-			$g->name = 'Langtests';
+			$g->name = 'Translations';
 
-			$g->permission('langtest.index', function($p)
+			$g->permission('translation.index', function($p)
 			{
-				$p->label = trans('sanatorium/localization::langtests/permissions.index');
+				$p->label = trans('sanatorium/localization::translations/permissions.index');
 
-				$p->controller('Sanatorium\Localization\Controllers\Admin\LangtestsController', 'index, grid');
+				$p->controller('Sanatorium\Localization\Controllers\Admin\TranslationsController', 'index, grid');
 			});
 
-			$g->permission('langtest.create', function($p)
+			$g->permission('translation.create', function($p)
 			{
-				$p->label = trans('sanatorium/localization::langtests/permissions.create');
+				$p->label = trans('sanatorium/localization::translations/permissions.create');
 
-				$p->controller('Sanatorium\Localization\Controllers\Admin\LangtestsController', 'create, store');
+				$p->controller('Sanatorium\Localization\Controllers\Admin\TranslationsController', 'create, store');
 			});
 
-			$g->permission('langtest.edit', function($p)
+			$g->permission('translation.edit', function($p)
 			{
-				$p->label = trans('sanatorium/localization::langtests/permissions.edit');
+				$p->label = trans('sanatorium/localization::translations/permissions.edit');
 
-				$p->controller('Sanatorium\Localization\Controllers\Admin\LangtestsController', 'edit, update');
+				$p->controller('Sanatorium\Localization\Controllers\Admin\TranslationsController', 'edit, update');
 			});
 
-			$g->permission('langtest.delete', function($p)
+			$g->permission('translation.delete', function($p)
 			{
-				$p->label = trans('sanatorium/localization::langtests/permissions.delete');
+				$p->label = trans('sanatorium/localization::translations/permissions.delete');
 
-				$p->controller('Sanatorium\Localization\Controllers\Admin\LangtestsController', 'delete');
+				$p->controller('Sanatorium\Localization\Controllers\Admin\TranslationsController', 'delete');
 			});
 		});
 	},
@@ -426,23 +359,14 @@ return [
 
 		'admin' => [
 			[
-				'class' => 'fa fa-circle-o',
+				'class' => 'fa fa-sign-language',
 				'name' => 'Translations',
 				'uri' => 'localization/translations',
 				'regex' => '/:admin\/localization\/translations/i',
 				'slug' => 'admin-sanatorium-localization-translations',
-				'children' => [
-					[
-						'class' => 'fa fa-circle-o',
-						'name' => 'Langtests',
-						'uri' => 'localization/langtests',
-						'regex' => '/:admin\/localization\/langtest/i',
-						'slug' => 'admin-sanatorium-localization-langtest',
-					],
-				],
 			],
 			[
-				'class' => 'fa fa-circle-o',
+				'class' => 'fa fa-language',
 				'name' => 'Languages',
 				'uri' => 'localization/languages',
 				'regex' => '/:admin\/localization\/language/i',

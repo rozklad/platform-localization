@@ -22,6 +22,11 @@ class LanguageServiceProvider extends ServiceProvider {
 
         // Register the Blade @localize widget.
         $this->registerBladeLocalizeWidget();
+		
+		// @todo: Rewrite custom
+		$this->registerBarryvdhLaravelTranslationManagerPackage();
+
+		$this->prepareResources();
 	}
 
 	/**
@@ -71,5 +76,38 @@ class LanguageServiceProvider extends ServiceProvider {
             return "<?php echo Widget::make('sanatorium/localization::language.show', array$value); ?>";
         });
     }
+
+	/**
+	 * Register barryvdh/laravel-translation-manager
+	 * @return
+	 */
+	protected function registerBarryvdhLaravelTranslationManagerPackage() {
+		$serviceProvider = 'Barryvdh\TranslationManager\ManagerServiceProvider';
+
+		if ( class_exists($serviceProvider) ) {
+
+			if (!$this->app->getProvider($serviceProvider)) {
+				$this->app->register($serviceProvider);
+			}
+
+		}
+
+	}
+
+	/**
+	 * Prepare the package resources.
+	 *
+	 * @return void
+	 */
+	protected function prepareResources()
+	{
+		$config = realpath(__DIR__.'/../../config/config.php');
+
+		$this->mergeConfigFrom($config, 'sanatorium-localization');
+
+		$this->publishes([
+			$config => config_path('sanatorium-localization.php'),
+		], 'config');
+	}
 
 }

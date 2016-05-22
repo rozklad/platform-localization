@@ -1,14 +1,10 @@
 <?php
 
-return [
-
-	'title'  => 'Languages',
-
-	'tabs' => [
-
-		'general'    => 'Language',
-		'attributes' => 'Attributes',
-
-	],
-
-];
+return array (
+  'title' => 'Languages',
+  'tabs' => 
+  array (
+    'general' => 'Language',
+    'attributes' => 'Attributes',
+  ),
+);

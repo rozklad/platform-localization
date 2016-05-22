@@ -10,13 +10,82 @@
 {{ Asset::queue('bootstrap-daterange', 'bootstrap/css/daterangepicker-bs3.css', 'style') }}
 
 {{ Asset::queue('moment', 'moment/js/moment.js', 'jquery') }}
-{{ Asset::queue('data-grid', 'cartalyst/js/data-grid.js', 'jquery') }}
 {{ Asset::queue('underscore', 'underscore/js/underscore.js', 'jquery') }}
-{{ Asset::queue('index', 'sanatorium/localization::translations/js/index.js', 'platform') }}
-{{ Asset::queue('bootstrap-daterange', 'bootstrap/js/daterangepicker.js', 'jquery') }}
+{{ Asset::queue('editable', 'sanatorium/localization::bootstrap-editable/bootstrap-editable.js', 'jquery') }}
+{{ Asset::queue('editable', 'sanatorium/localization::bootstrap-editable/bootstrap-editable.css') }}
+
 
 {{-- Inline scripts --}}
 @section('scripts')
+	<script type="text/javascript">
+	function activateEditables() {
+		$('.editable').editable().on('hidden', function(event, reason){
+
+			var $row = $(this).closest('tr'),
+				raw = $(this).data();
+
+			if(reason === 'save')
+			{
+				var data = {
+					locale: raw.locale,
+					key: raw.key,
+					group: raw.group,
+					namespace: raw.namespace,
+					value: raw.editable.value
+				};
+
+				$.ajax({
+					type: 'POST',
+					url: '{{ route('admin.sanatorium.localization.translations.update') }}',
+					data: data
+				}).success(function(data){
+
+					$row.addClass('success');
+
+				});
+			}
+
+			if(reason == 'nochange')
+			{
+
+			}
+
+		});
+	}
+
+	$(function(){
+		$('#namespace').change(function(event){
+
+			var namespace = $(this).val();
+
+			if ( namespace === '-1' )
+					return false;
+
+			$.ajax({
+				url: '{{ route('admin.sanatorium.localization.translations.namespace') }}',
+				data: {namespace: namespace}
+			}).success(function(data){
+
+				var args = {
+					results: data,
+					namespace: namespace
+				};
+
+				// Generalte html
+				var template        = jQuery('#translation-template').html(),
+					html            = _.template(template)(args);
+
+				$('#form-area').html(html);
+
+				activateEditables();
+
+			}).error(function(data){
+
+			});
+
+		});
+	});
+	</script>
 @parent
 @stop
 
@@ -28,10 +97,8 @@
 {{-- Page content --}}
 @section('page')
 
-{{-- Grid --}}
 <section class="panel panel-default panel-grid">
 
-	{{-- Grid: Header --}}
 	<header class="panel-heading">
 
 		<nav class="navbar navbar-default navbar-actions">
@@ -50,123 +117,26 @@
 
 				</div>
 
-				{{-- Grid: Actions --}}
 				<div class="collapse navbar-collapse" id="actions">
+
+					<div class="navbar-form navbar-right">
+						<select name="namespace" class="form-control" id="namespace">
+							<option value="-1">{{ trans('sanatorium/localization::translations/common.choose_namespace') }}</option>
+							@foreach( $namespaces as $namespace => $label )
+								<option value="{{ $namespace }}">{{ $label }}</option>
+							@endforeach
+						</select>
+					</div>
 
 					<ul class="nav navbar-nav navbar-left">
 
-						<li class="disabled">
-							<a class="disabled" data-grid-bulk-action="disable" data-toggle="tooltip" data-original-title="{{{ trans('action.bulk.disable') }}}">
-								<i class="fa fa-eye-slash"></i> <span class="visible-xs-inline">{{{ trans('action.bulk.disable') }}}</span>
-							</a>
-						</li>
-
-						<li class="disabled">
-							<a data-grid-bulk-action="enable" data-toggle="tooltip" data-original-title="{{{ trans('action.bulk.enable') }}}">
-								<i class="fa fa-eye"></i> <span class="visible-xs-inline">{{{ trans('action.bulk.enable') }}}</span>
-							</a>
-						</li>
-
-						<li class="danger disabled">
-							<a data-grid-bulk-action="delete" data-toggle="tooltip" data-target="modal-confirm" data-original-title="{{{ trans('action.bulk.delete') }}}">
-								<i class="fa fa-trash-o"></i> <span class="visible-xs-inline">{{{ trans('action.bulk.delete') }}}</span>
-							</a>
-						</li>
-
-						<li class="dropdown">
-							<a href="#" class="dropdown-toggle tip" data-toggle="dropdown" role="button" aria-expanded="false" data-original-title="{{{ trans('action.export') }}}">
-								<i class="fa fa-download"></i> <span class="visible-xs-inline">{{{ trans('action.export') }}}</span>
-							</a>
-							<ul class="dropdown-menu" role="menu">
-								<li><a data-download="json"><i class="fa fa-file-code-o"></i> JSON</a></li>
-								<li><a data-download="csv"><i class="fa fa-file-excel-o"></i> CSV</a></li>
-								<li><a data-download="pdf"><i class="fa fa-file-pdf-o"></i> PDF</a></li>
-							</ul>
-						</li>
-
 						<li class="primary">
-							<a href="{{ route('admin.sanatorium.localization.translations.create') }}" data-toggle="tooltip" data-original-title="{{{ trans('action.create') }}}">
-								<i class="fa fa-plus"></i> <span class="visible-xs-inline">{{{ trans('action.create') }}}</span>
+							<a href="{{ route('admin.sanatorium.localization.strings.load') }}" data-toggle="tooltip" data-original-title="{{{ trans('action.refresh') }}}">
+								<i class="fa fa-refresh"></i> <span class="visible-xs-inline">{{{ trans('action.refresh') }}}</span>
 							</a>
 						</li>
 
 					</ul>
-
-					{{-- Grid: Filters --}}
-					<form class="navbar-form navbar-right" method="post" accept-charset="utf-8" data-search data-grid="translations" role="form">
-
-						<div class="input-group">
-
-							<span class="input-group-btn">
-
-								<button class="btn btn-default" type="button" disabled>
-									{{{ trans('common.filters') }}}
-								</button>
-
-								<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
-									<span class="caret"></span>
-									<span class="sr-only">Toggle Dropdown</span>
-								</button>
-
-								<ul class="dropdown-menu" role="menu">
-
-									<li>
-										<a data-grid="translations" data-filter="enabled:1" data-label="enabled::{{{ trans('common.all_enabled') }}}" data-reset>
-											<i class="fa fa-eye"></i> {{{ trans('common.show_enabled') }}}
-										</a>
-									</li>
-
-									<li>
-										<a data-toggle="tooltip" data-placement="top" data-original-title="" data-grid="translations" data-filter="enabled:0" data-label="enabled::{{{ trans('common.all_disabled') }}}" data-reset>
-											<i class="fa fa-eye-slash"></i> {{{ trans('common.show_disabled') }}}
-										</a>
-									</li>
-
-									<li class="divider"></li>
-
-									<li>
-										<a data-grid-calendar-preset="day">
-											<i class="fa fa-calendar"></i> {{{ trans('date.day') }}}
-										</a>
-									</li>
-
-									<li>
-										<a data-grid-calendar-preset="week">
-											<i class="fa fa-calendar"></i> {{{ trans('date.week') }}}
-										</a>
-									</li>
-
-									<li>
-										<a data-grid-calendar-preset="month">
-											<i class="fa fa-calendar"></i> {{{ trans('date.month') }}}
-										</a>
-									</li>
-
-								</ul>
-
-								<button class="btn btn-default hidden-xs" type="button" data-grid-calendar data-range-filter="created_at">
-									<i class="fa fa-calendar"></i>
-								</button>
-
-							</span>
-
-							<input class="form-control " name="filter" type="text" placeholder="{{{ trans('common.search') }}}">
-
-							<span class="input-group-btn">
-
-								<button class="btn btn-default" type="submit">
-									<span class="fa fa-search"></span>
-								</button>
-
-								<button class="btn btn-default" data-grid="translations" data-reset>
-									<i class="fa fa-refresh fa-sm"></i>
-								</button>
-
-							</span>
-
-						</div>
-
-					</form>
 
 				</div>
 
@@ -178,52 +148,67 @@
 
 	<div class="panel-body">
 
-		{{-- Grid: Applied Filters --}}
-		<div class="btn-toolbar" role="toolbar" aria-label="data-grid-applied-filters">
-
-			<div id="data-grid_applied" class="btn-group" data-grid="translations"></div>
-
-		</div>
 
 	</div>
 
-	{{-- Grid: Table --}}
 	<div class="table-responsive">
 
-		<table id="data-grid" class="table table-hover" data-source="{{ route('admin.sanatorium.localization.translations.grid') }}" data-grid="translations">
+		<table class="table table-hover">
 			<thead>
 				<tr>
-					<th><input data-grid-checkbox="all" type="checkbox"></th>
-					<th class="sortable" data-sort="id">{{{ trans('sanatorium/localization::translations/model.general.id') }}}</th>
-					<th class="sortable" data-sort="namespace">{{{ trans('sanatorium/localization::translations/model.general.namespace') }}}</th>
-					<th class="sortable" data-sort="locale">{{{ trans('sanatorium/localization::translations/model.general.locale') }}}</th>
-					<th class="sortable" data-sort="entity_id">{{{ trans('sanatorium/localization::translations/model.general.entity_id') }}}</th>
-					<th class="sortable" data-sort="entity_field">{{{ trans('sanatorium/localization::translations/model.general.entity_field') }}}</th>
-					<th class="sortable" data-sort="entity_value">{{{ trans('sanatorium/localization::translations/model.general.entity_value') }}}</th>
+					<th>Group</th>
+					<th>Key</th>
+					@foreach( $locales as $locale )
+						<th>{{ $locale }}</th>
+					@endforeach
 				</tr>
 			</thead>
-			<tbody></tbody>
+			<tbody id="form-area">
+				<tr>
+					<td colspan="{{ count($locales) + 2 }}" class="text-center">
+						{{ trans('sanatorium/localization::translations/common.choose_namespace') }}
+					</td>
+				</tr>
+			</tbody>
 		</table>
 
 	</div>
 
 	<footer class="panel-footer clearfix">
 
-		{{-- Grid: Pagination --}}
-		<div id="data-grid_pagination" data-grid="translations"></div>
-
 	</footer>
-
-	{{-- Grid: templates --}}
-	@include('sanatorium/localization::translations/grid/index/results')
-	@include('sanatorium/localization::translations/grid/index/pagination')
-	@include('sanatorium/localization::translations/grid/index/filters')
-	@include('sanatorium/localization::translations/grid/index/no_results')
 
 </section>
 
-@if (config('platform.app.help'))
-	@include('sanatorium/localization::translations/help')
-@endif
+<script type="text/x-template-lodash" id="translation-template">
+
+	<% _.each( results, function( rows, group ){ %>
+		<% _.each( rows, function( r, key ){ %>
+			<tr>
+				<td width="7%">
+					<%= group %>
+				</td>
+				<td width="13%">
+					<%= key %>
+				</td>
+				@foreach( $locales as $locale )
+					<td width="{{ floor(80/count($locales)) }}%">
+						<a href="#edit" class="editable"
+							data-locale="{{ $locale }}"
+							data-key="<%= key %>"
+							data-namespace="<%= namespace %>"
+							data-group="<%= group %>">
+							<% if ( typeof r['{{ $locale }}'] !== 'undefined' ) { %>
+								<%= r['{{ $locale }}'] %>
+							<% } else { %>
+							<% } %>
+						</a>
+					</td>
+				@endforeach
+			</tr>
+		<% }); %>
+	<% }); %>
+
+</script>
 
 @stop

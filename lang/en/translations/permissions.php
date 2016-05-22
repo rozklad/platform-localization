@@ -3,8 +3,8 @@
 return [
 
 	'index'  => 'List Translations',
-	'create' => 'Create new Translations',
-	'edit'   => 'Edit Translations',
-	'delete' => 'Delete Translations',
+	'create' => 'Create new Translation',
+	'edit'   => 'Edit Translation',
+	'delete' => 'Delete Translation',
 
 ];

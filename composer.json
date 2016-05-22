@@ -27,8 +27,7 @@
 	"require": {
 		"php": ">=5.4.0",
 		"cartalyst/composer-installers": "1.2.*",
-		"platform/foundation": "2.0.*|3.0.*",
-		"barryvdh/laravel-translation-manager": "0.2.x"
+		"platform/foundation": "2.0.*|3.0.*"
 	},
 	"autoload": {
 		"classmap": [

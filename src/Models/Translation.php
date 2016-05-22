@@ -1,69 +1,39 @@
 <?php namespace Sanatorium\Localization\Models;
-/**
- * @todo: delete
- */
 
+use Cartalyst\Attributes\EntityInterface;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
+use Platform\Attributes\Traits\EntityTrait;
+use Cartalyst\Support\Traits\NamespacedEntityTrait;
 
-class Translation extends Model {
+class Translation extends Model implements EntityInterface {
+
+	use EntityTrait, NamespacedEntityTrait;
+
+	CONST STATUS_SAVED = 1;
+	CONST STATUS_CHANGED = 2;
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public $table = 'translations';
+	protected $table = 'translations';
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public $timestamps = false;
+	protected $guarded = [
+		'id',
+	];
 
 	/**
-	 * Locale scope.
-	 *
-	 * @param  \Illuminate\Database\Eloquent\Builder  $query
-	 * @param  string  $locale
-	 * @return \Illuminate\Database\Eloquent\Builder
+	 * {@inheritDoc}
 	 */
-	public function scopeLocale(Builder $query, $locale)
-	{
-		return $query->whereLocale($locale);
-	}
+	protected $with = [
+		'values.attribute',
+	];
 
 	/**
-	 * Field scope.
-	 *
-	 * @param  \Illuminate\Database\Eloquent\Builder  $query
-	 * @param  string  $field
-	 * @return \Illuminate\Database\Eloquent\Builder
+	 * {@inheritDoc}
 	 */
-	public function scopeField(Builder $query, $field)
-	{
-		return $query->whereEntityField($field);
-	}
-
-	/**
-	 * Namespace scope.
-	 *
-	 * @param  \Illuminate\Database\Eloquent\Builder  $query
-	 * @param  string  $namespace
-	 * @return \Illuminate\Database\Eloquent\Builder
-	 */
-	public function scopeNamespace(Builder $query, $namespace)
-	{
-		return $query->whereNamespace($namespace);
-	}
-
-	/**
-	 * Entity scope.
-	 *
-	 * @param  \Illuminate\Database\Eloquent\Builder  $query
-	 * @param  string  $id
-	 * @return \Illuminate\Database\Eloquent\Builder
-	 */
-	public function scopeEntity(Builder $query, $id)
-	{
-		return $query->whereEntityId($id);
-	}
+	protected static $entityNamespace = 'sanatorium/localization.translation';
 
 }

@@ -1,42 +1,25 @@
 <?php namespace Sanatorium\Localization\Controllers\Admin;
 
 use Platform\Access\Controllers\AdminController;
-use Sanatorium\Localization\Repositories\Translations\TranslationsRepositoryInterface;
+use Sanatorium\Localization\Repositories\Translation\TranslationRepositoryInterface;
+use Sanatorium\Localization\Models\Translation;
 
 class TranslationsController extends AdminController {
 
 	/**
-	 * {@inheritDoc}
-	 */
-	protected $csrfWhitelist = [
-		'executeAction',
-	];
-
-	/**
 	 * The Localization repository.
 	 *
-	 * @var \Sanatorium\Localization\Repositories\Translations\TranslationsRepositoryInterface
+	 * @var \Sanatorium\Localization\Repositories\Translation\TranslationRepositoryInterface
 	 */
 	protected $translations;
 
 	/**
-	 * Holds all the mass actions we can execute.
-	 *
-	 * @var array
-	 */
-	protected $actions = [
-		'delete',
-		'enable',
-		'disable',
-	];
-
-	/**
 	 * Constructor.
 	 *
-	 * @param  \Sanatorium\Localization\Repositories\Translations\TranslationsRepositoryInterface  $translations
+	 * @param  \Sanatorium\Localization\Repositories\Translation\TranslationRepositoryInterface  $translations
 	 * @return void
 	 */
-	public function __construct(TranslationsRepositoryInterface $translations)
+	public function __construct(TranslationRepositoryInterface $translations)
 	{
 		parent::__construct();
 
@@ -44,180 +27,74 @@ class TranslationsController extends AdminController {
 	}
 
 	/**
-	 * Display a listing of translations.
+	 * Display a listing of translation.
 	 *
 	 * @return \Illuminate\View\View
 	 */
 	public function index()
 	{
-		return view('sanatorium/localization::translations.index');
+		$namespaces = $this->translations->getNamespacesWithLabels();
+
+		$locales = $this->translations->getLocales();
+
+		return view('sanatorium/localization::translations.index', compact('namespaces', 'locales'));
+	}
+
+	public function namespace()
+	{
+		$namespace = request()->get('namespace');
+
+		$tree = request()->has('tree') ? true : false;
+
+		$translations = $this->translations->where('namespace', $namespace)->get();
+
+		return ( $tree ? $translations : $this->flatten($translations) );
 	}
 
 	/**
-	 * Datasource for the translations Data Grid.
-	 *
-	 * @return \Cartalyst\DataGrid\DataGrid
+	 * "flatten" translations to better use with x-editable
+	 * @param $translations
 	 */
-	public function grid()
+	public function flatten($inputTranslations)
 	{
-		$data = $this->translations->grid();
+		$translations = [];
 
-		$columns = [
-			'id',
-			'namespace',
-			'locale',
-			'entity_id',
-			'entity_field',
-			'entity_value',
-		];
-
-		$settings = [
-			'sort'      => 'id',
-			'direction' => 'desc',
-		];
-
-		$transformer = function($element)
+		foreach( $inputTranslations as $translation )
 		{
-			$element->edit_uri = route('admin.sanatorium.localization.translations.edit', $element->id);
-
-			return $element;
-		};
-
-		return datagrid($data, $columns, $settings, $transformer);
-	}
-
-	/**
-	 * Show the form for creating new translations.
-	 *
-	 * @return \Illuminate\View\View
-	 */
-	public function create()
-	{
-		return $this->showForm('create');
-	}
-
-	/**
-	 * Handle posting of the form for creating new translations.
-	 *
-	 * @return \Illuminate\Http\RedirectResponse
-	 */
-	public function store()
-	{
-		return $this->processForm('create');
-	}
-
-	/**
-	 * Show the form for updating translations.
-	 *
-	 * @param  int  $id
-	 * @return mixed
-	 */
-	public function edit($id)
-	{
-		return $this->showForm('update', $id);
-	}
-
-	/**
-	 * Handle posting of the form for updating translations.
-	 *
-	 * @param  int  $id
-	 * @return \Illuminate\Http\RedirectResponse
-	 */
-	public function update($id)
-	{
-		return $this->processForm('update', $id);
-	}
-
-	/**
-	 * Remove the specified translations.
-	 *
-	 * @param  int  $id
-	 * @return \Illuminate\Http\RedirectResponse
-	 */
-	public function delete($id)
-	{
-		$type = $this->translations->delete($id) ? 'success' : 'error';
-
-		$this->alerts->{$type}(
-			trans("sanatorium/localization::translations/message.{$type}.delete")
-		);
-
-		return redirect()->route('admin.sanatorium.localization.translations.all');
-	}
-
-	/**
-	 * Executes the mass action.
-	 *
-	 * @return \Illuminate\Http\Response
-	 */
-	public function executeAction()
-	{
-		$action = request()->input('action');
-
-		if (in_array($action, $this->actions))
-		{
-			foreach (request()->input('rows', []) as $row)
-			{
-				$this->translations->{$action}($row);
-			}
-
-			return response('Success');
+			$translations[$translation->group][$translation->key][$translation->locale] = $translation->value;
 		}
 
-		return response('Failed', 500);
+		return $translations;
 	}
 
-	/**
-	 * Shows the form.
-	 *
-	 * @param  string  $mode
-	 * @param  int  $id
-	 * @return mixed
-	 */
-	protected function showForm($mode, $id = null)
+	public function update()
 	{
-		// Do we have a translations identifier?
-		if (isset($id))
+		$data = request()->all();
+
+		$value = (string) $data['value'];
+		$translation = $this->translations->createModel()->firstOrNew([
+			'locale'    => $data['locale'],
+			'group'     => $data['group'],
+			'key'       => $data['key'],
+			'namespace' => $data['namespace'],
+		]);
+
+		// Check if the database is different then the files
+		$newStatus = $translation->value === $value ? Translation::STATUS_SAVED : Translation::STATUS_CHANGED;
+		if ( $newStatus !== (int) $translation->status )
 		{
-			if ( ! $translations = $this->translations->find($id))
-			{
-				$this->alerts->error(trans('sanatorium/localization::translations/message.not_found', compact('id')));
-
-				return redirect()->route('admin.sanatorium.localization.translations.all');
-			}
-		}
-		else
-		{
-			$translations = $this->translations->createModel();
-		}
-
-		// Show the page
-		return view('sanatorium/localization::translations.form', compact('mode', 'translations'));
-	}
-
-	/**
-	 * Processes the form.
-	 *
-	 * @param  string  $mode
-	 * @param  int  $id
-	 * @return \Illuminate\Http\RedirectResponse
-	 */
-	protected function processForm($mode, $id = null)
-	{
-		// Store the translations
-		list($messages) = $this->translations->store($id, request()->all());
-
-		// Do we have any errors?
-		if ($messages->isEmpty())
-		{
-			$this->alerts->success(trans("sanatorium/localization::translations/message.success.{$mode}"));
-
-			return redirect()->route('admin.sanatorium.localization.translations.all');
+			$translation->status = $newStatus;
 		}
 
-		$this->alerts->error($messages, 'form');
+		if ( !$translation->value )
+		{
+			$translation->value = $value;
+		}
 
-		return redirect()->back()->withInput();
+		$translation->save();
+
+		return $translation;
+
 	}
 
 }

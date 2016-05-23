@@ -67,7 +67,7 @@ return [
 	|
 	*/
 
-	'version' => '0.3.2',
+	'version' => '0.3.3',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -194,6 +194,8 @@ return [
 			Route::get('/' , ['as' => 'admin.sanatorium.localization.strings.all', 'uses' => 'StringsController@index']);
 
 			Route::get('load' , ['as' => 'admin.sanatorium.localization.strings.load', 'uses' => 'StringsController@load']);
+
+			Route::get('export' , ['as' => 'admin.sanatorium.localization.strings.export', 'uses' => 'StringsController@export']);
 		});
 	},
 

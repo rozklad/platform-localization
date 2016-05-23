@@ -58,7 +58,7 @@
 
 			var namespace = $(this).val();
 
-			if ( namespace === '-1' )
+			if ( namespace === '*' )
 					return false;
 
 			$.ajax({
@@ -78,6 +78,25 @@
 				$('#form-area').html(html);
 
 				activateEditables();
+
+			}).error(function(data){
+
+			});
+
+		});
+
+		$('[data-actionable]').click(function(event){
+
+			event.preventDefault();
+
+			var url = $(this).attr('href'),
+				namespace = $('#namespace').val();
+
+			$.ajax({
+				type: 'GET',
+				url: url,
+				data: {namespace: namespace}
+			}).success(function(data){
 
 			}).error(function(data){
 
@@ -121,7 +140,7 @@
 
 					<div class="navbar-form navbar-right">
 						<select name="namespace" class="form-control" id="namespace">
-							<option value="-1">{{ trans('sanatorium/localization::translations/common.choose_namespace') }}</option>
+							<option value="*">{{ trans('sanatorium/localization::translations/common.choose_namespace') }}</option>
 							@foreach( $namespaces as $namespace => $label )
 								<option value="{{ $namespace }}">{{ $label }}</option>
 							@endforeach
@@ -130,9 +149,15 @@
 
 					<ul class="nav navbar-nav navbar-left">
 
-						<li class="primary">
-							<a href="{{ route('admin.sanatorium.localization.strings.load') }}" data-toggle="tooltip" data-original-title="{{{ trans('action.refresh') }}}">
-								<i class="fa fa-refresh"></i> <span class="visible-xs-inline">{{{ trans('action.refresh') }}}</span>
+						<li>
+							<a href="{{ route('admin.sanatorium.localization.strings.load') }}" data-toggle="tooltip" data-original-title="{{{ trans('common.refresh') }}}" data-actionable>
+								<i class="fa fa-refresh"></i> <span class="visible-xs-inline">{{{ trans('common.refresh') }}}</span>
+							</a>
+						</li>
+
+						<li>
+							<a href="{{ route('admin.sanatorium.localization.strings.export') }}" data-toggle="tooltip" data-original-title="{{{ trans('action.save') }}}" data-actionable>
+								<i class="fa fa-pencil"></i> <span class="visible-xs-inline">{{{ trans('action.save') }}}</span>
 							</a>
 						</li>
 
@@ -197,12 +222,11 @@
 							data-locale="{{ $locale }}"
 							data-key="<%= key %>"
 							data-namespace="<%= namespace %>"
-							data-group="<%= group %>">
-							<% if ( typeof r['{{ $locale }}'] !== 'undefined' ) { %>
-								<%= r['{{ $locale }}'] %>
-							<% } else { %>
-							<% } %>
-						</a>
+							data-group="<%= group %>"
+							data-type="textarea"
+							data-title="Enter translation"
+							data-mode="inline"
+							><% if ( typeof r['{{ $locale }}'] !== 'undefined' ) { %><%= r['{{ $locale }}'] %><% } else { %><% } %></a>
 					</td>
 				@endforeach
 			</tr>

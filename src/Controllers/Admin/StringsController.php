@@ -117,7 +117,32 @@ class StringsController extends AdminController
     {
         $this->truncate();
 
-        return $this->saveAllStrings();
+        $this->saveAllStrings();
+
+        $this->alerts->success(trans('sanatorium/translation::translations/message.success.load'));
+
+        // @todo: meaningful ajax response
+        if ( request()->ajax() )
+            return [];
+
+        return redirect()->back();
+    }
+
+    public function export()
+    {
+        $namespace = request()->has('namespace') ? request()->get('namespace') : '*';
+
+        $group = request()->has('group') ? request()->get('group') : '*';
+
+        $this->exportTranslations($namespace, $group);
+
+        $this->alerts->success(trans('sanatorium/translation::translations/message.success.export', compact('namespace', 'group')));
+
+        // @todo: meaningful ajax response
+        if ( request()->ajax() )
+            return [];
+
+        return redirect()->back();
     }
 
     public function clean()
@@ -278,7 +303,8 @@ class StringsController extends AdminController
                         $this->makeBackup($path, $namespace, $locale, $group);
 
                     $output = "<?php\n\nreturn " . var_export($translations, true) . ";\n";
-                    $this->files->put($path, $output);
+
+                    $this->writeLangFile($path, $output);
                 }
             }
         }
@@ -345,6 +371,21 @@ class StringsController extends AdminController
         }
 
         return $array;
+    }
+
+    /**
+     * @param $path     Path to file
+     * @param $output   File contents
+     */
+    protected function writeLangFile($path, $output)
+    {
+        $directory = dirname($path);
+
+        if ( !$this->files->exists( $directory ) ) {
+            $this->files->makeDirectory($directory, 0755, true);
+        }
+
+        $this->files->put($path, $output);
     }
 
     /**

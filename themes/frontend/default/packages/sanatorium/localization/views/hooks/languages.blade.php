@@ -17,7 +17,7 @@
 
 	<ul class="{{ $class }}">
 		
-		<li class="dropdown" class="language language-active language-dropdown-item language-{{ $active_language->locale }}">
+		<li class="dropdown language language-active language-dropdown-item language-{{ $active_language->locale }}">
 
 			<a href="#" class="dropdown-toggle" role="button" data-toggle="dropdown">
 

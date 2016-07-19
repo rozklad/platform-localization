@@ -21,7 +21,7 @@ class LanguageServiceProvider extends ServiceProvider {
         $this->registerHooks();
 
         // Register the Blade @localize widget.
-        $this->registerBladeLocalizeWidget();
+        $this->registerBladeLocalizeDirective();
 		
 		// @todo: Rewrite custom
 		$this->registerBarryvdhLaravelTranslationManagerPackage();
@@ -66,11 +66,11 @@ class LanguageServiceProvider extends ServiceProvider {
     }
 
     /**
-     * Register the Blade @localize widget.
+     * Register the Blade @localize directive.
      *
      * @return void
      */
-    protected function registerBladeLocalizeWidget()
+    protected function registerBladeLocalizeDirective()
     {
         $this->app['blade.compiler']->directive('localize', function ($value) {
             return "<?php echo Widget::make('sanatorium/localization::language.show', array$value); ?>";

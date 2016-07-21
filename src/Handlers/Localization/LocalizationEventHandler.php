@@ -80,6 +80,10 @@ class LocalizationEventHandler extends BaseEventHandler implements LocalizationE
 		$this->app['cache']->forget('sanatorium.localization.localization.all');
 
 		$this->app['cache']->forget('sanatorium.localization.localization.'.$localization->id);
+
+        // Drop localization for @localize directive
+        $default_cache_key = 'localize';
+        $this->app['cache']->forget(implode('.', [$default_cache_key, $localization->locale, $localization->entity_type, $localization->entity_id, $localization->entity_field]));
 	}
 
 }

@@ -1,29 +1,42 @@
 <?php namespace Sanatorium\Localization\Widgets;
 
 use App;
+use Cache;
 use Sanatorium\Localization\Models\Localization;
 
 class Language {
 
-	public function show($object = null, $key = null, $lang = null)
+	public function show($object = null, $key = null, $locale = null, $default_cache_key = 'localize')
 	{
 		$fallback = $object->{$key};
 
-		if ( !isset($lang) ) {
-			$lang = App::getLocale();
+		if ( !isset($locale) ) {
+			$locale = App::getLocale();
 		}
 
-		$translation = Localization::where('locale', $lang)
-							->where('entity_id', $object->id)
-							->where('entity_field', $key)
-							->where('entity_type', get_class($object))
-							->first();
+		$entity_id = $object->id;
+		$entity_type = get_class($object);
+        $entity_field = $key;
 
-		if ( $translation ) {
-			return $translation->entity_value;
-		}
+		$cache_key = implode('.', [$default_cache_key, $locale, $entity_type, $entity_id, $entity_field]);
 
-		return $fallback;
+        return Cache::rememberForever($cache_key, function() use ($fallback, $locale, $entity_id, $entity_field, $entity_type) {
+
+            $translation = Localization::where('locale', $locale)
+                ->where('entity_id', $entity_id)
+                ->where('entity_field', $entity_field)
+                ->where('entity_type', $entity_type)
+                ->first();
+
+            if ( $translation )
+            {
+                return $translation->entity_value;
+            }
+
+            return $fallback;
+
+        });
+
 	}
 
 }

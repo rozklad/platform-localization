@@ -119,6 +119,16 @@ class LocalizationsController extends AdminController {
 		return $this->processForm('create');
 	}
 
+    /**
+     * Handle posting of the form for creating new localization.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function storeAndContinue()
+    {
+        return $this->processForm('create', null, true);
+    }
+
 	/**
 	 * Show the form for updating localization.
 	 *
@@ -219,7 +229,7 @@ class LocalizationsController extends AdminController {
 	 * @param  int  $id
 	 * @return \Illuminate\Http\RedirectResponse
 	 */
-	protected function processForm($mode, $id = null)
+	protected function processForm($mode, $id = null, $continue = false)
 	{
 		// Store the localization
 		list($messages) = $this->localizations->store($id, request()->all());
@@ -229,7 +239,7 @@ class LocalizationsController extends AdminController {
 		{
 			$this->alerts->success(trans("sanatorium/localization::localizations/message.success.{$mode}"));
 
-            if ( $mode == 'create' )
+            if ( $continue )
                 return redirect()->route('admin.sanatorium.localization.localizations.create');
 
 			return redirect()->route('admin.sanatorium.localization.localizations.all');

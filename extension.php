@@ -67,7 +67,7 @@ return [
 	|
 	*/
 
-	'version' => '0.3.6',
+	'version' => '0.3.7',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -220,7 +220,7 @@ return [
 				Route::get('grid', ['as' => 'admin.sanatorium.localization.localizations.grid', 'uses' => 'LocalizationsController@grid']);
 
 				Route::get('create' , ['as' => 'admin.sanatorium.localization.localizations.create', 'uses' => 'LocalizationsController@create']);
-				Route::post('create', ['as' => 'admin.sanatorium.localization.localizations.create', 'uses' => 'LocalizationsController@store']);
+				Route::post('create', ['as' => 'admin.sanatorium.localization.localizations.create', 'uses' => 'LocalizationsController@storeAndContinue']);
 
 				Route::get('{id}'   , ['as' => 'admin.sanatorium.localization.localizations.edit'  , 'uses' => 'LocalizationsController@edit']);
 				Route::post('{id}'  , ['as' => 'admin.sanatorium.localization.localizations.edit'  , 'uses' => 'LocalizationsController@update']);

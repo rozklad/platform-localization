@@ -26,6 +26,17 @@ Add following line to app/Http/Kernel.php
         \Sanatorium\Localization\Middleware\Locale::class
     ];
 
+### Register new localized entity
+
+    // Register new localized entity
+    $this->app['sanatorium.localization.localized']->localize(
+        'Platform\Menus\Models\Menu'
+    );
+
+### Localize entity field
+
+    @localize($entity, 'field')
+
 ## Documentation
 
 ### Languages

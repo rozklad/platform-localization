@@ -67,7 +67,7 @@ return [
 	|
 	*/
 
-	'version' => '0.3.5',
+	'version' => '0.3.6',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -125,6 +125,7 @@ return [
 
 		'Sanatorium\Localization\Providers\LanguageServiceProvider',
 		'Sanatorium\Localization\Providers\TranslationServiceProvider',
+		'Sanatorium\Localization\Providers\LocalizationServiceProvider',
 
 	],
 
@@ -174,6 +175,16 @@ return [
 			Route::get('{locale}', ['as' => 'sanatorium.localization.languages.set', 'uses' => 'LanguagesController@set']);
 		});
 
+        Route::group([
+            'prefix'    => admin_uri().'/localization/entities',
+            'namespace' => 'Sanatorium\Localization\Controllers\Admin',
+        ], function()
+        {
+            Route::get('/' , ['as' => 'admin.sanatorium.localization.entities.all', 'uses' => 'TranslationsController@entities']);
+
+            Route::post('update' , ['as' => 'admin.sanatorium.localization.entities.update', 'uses' => 'TranslationsController@entitiesUpdate']);
+        });
+
 		Route::group([
 				'prefix'    => admin_uri().'/localization/translations',
 				'namespace' => 'Sanatorium\Localization\Controllers\Admin',
@@ -196,6 +207,33 @@ return [
 			Route::get('load' , ['as' => 'admin.sanatorium.localization.strings.load', 'uses' => 'StringsController@load']);
 
 			Route::get('export' , ['as' => 'admin.sanatorium.localization.strings.export', 'uses' => 'StringsController@export']);
+		});
+
+					Route::group([
+				'prefix'    => admin_uri().'/localization/localizations',
+				'namespace' => 'Sanatorium\Localization\Controllers\Admin',
+			], function()
+			{
+				Route::get('/' , ['as' => 'admin.sanatorium.localization.localizations.all', 'uses' => 'LocalizationsController@index']);
+				Route::post('/', ['as' => 'admin.sanatorium.localization.localizations.all', 'uses' => 'LocalizationsController@executeAction']);
+
+				Route::get('grid', ['as' => 'admin.sanatorium.localization.localizations.grid', 'uses' => 'LocalizationsController@grid']);
+
+				Route::get('create' , ['as' => 'admin.sanatorium.localization.localizations.create', 'uses' => 'LocalizationsController@create']);
+				Route::post('create', ['as' => 'admin.sanatorium.localization.localizations.create', 'uses' => 'LocalizationsController@store']);
+
+				Route::get('{id}'   , ['as' => 'admin.sanatorium.localization.localizations.edit'  , 'uses' => 'LocalizationsController@edit']);
+				Route::post('{id}'  , ['as' => 'admin.sanatorium.localization.localizations.edit'  , 'uses' => 'LocalizationsController@update']);
+
+				Route::delete('{id}', ['as' => 'admin.sanatorium.localization.localizations.delete', 'uses' => 'LocalizationsController@delete']);
+			});
+
+		Route::group([
+			'prefix'    => 'localization/localizations',
+			'namespace' => 'Sanatorium\Localization\Controllers\Frontend',
+		], function()
+		{
+			Route::get('/', ['as' => 'sanatorium.localization.localizations.index', 'uses' => 'LocalizationsController@index']);
 		});
 	},
 
@@ -305,6 +343,105 @@ return [
 				$p->controller('Sanatorium\Localization\Controllers\Admin\TranslationsController', 'delete');
 			});
 		});
+
+		$permissions->group('attributes', function($g)
+		{
+			$g->name = 'Attributes';
+
+			$g->permission('attributes.index', function($p)
+			{
+				$p->label = trans('sanatorium/localization::attributes/permissions.index');
+
+				$p->controller('Sanatorium\Localization\Controllers\Admin\AttributesController', 'index, grid');
+			});
+
+			$g->permission('attributes.create', function($p)
+			{
+				$p->label = trans('sanatorium/localization::attributes/permissions.create');
+
+				$p->controller('Sanatorium\Localization\Controllers\Admin\AttributesController', 'create, store');
+			});
+
+			$g->permission('attributes.edit', function($p)
+			{
+				$p->label = trans('sanatorium/localization::attributes/permissions.edit');
+
+				$p->controller('Sanatorium\Localization\Controllers\Admin\AttributesController', 'edit, update');
+			});
+
+			$g->permission('attributes.delete', function($p)
+			{
+				$p->label = trans('sanatorium/localization::attributes/permissions.delete');
+
+				$p->controller('Sanatorium\Localization\Controllers\Admin\AttributesController', 'delete');
+			});
+		});
+
+		$permissions->group('attributestranslation', function($g)
+		{
+			$g->name = 'Attributestranslations';
+
+			$g->permission('attributestranslation.index', function($p)
+			{
+				$p->label = trans('sanatorium/localization::attributestranslations/permissions.index');
+
+				$p->controller('Sanatorium\Localization\Controllers\Admin\AttributestranslationsController', 'index, grid');
+			});
+
+			$g->permission('attributestranslation.create', function($p)
+			{
+				$p->label = trans('sanatorium/localization::attributestranslations/permissions.create');
+
+				$p->controller('Sanatorium\Localization\Controllers\Admin\AttributestranslationsController', 'create, store');
+			});
+
+			$g->permission('attributestranslation.edit', function($p)
+			{
+				$p->label = trans('sanatorium/localization::attributestranslations/permissions.edit');
+
+				$p->controller('Sanatorium\Localization\Controllers\Admin\AttributestranslationsController', 'edit, update');
+			});
+
+			$g->permission('attributestranslation.delete', function($p)
+			{
+				$p->label = trans('sanatorium/localization::attributestranslations/permissions.delete');
+
+				$p->controller('Sanatorium\Localization\Controllers\Admin\AttributestranslationsController', 'delete');
+			});
+		});
+
+		$permissions->group('localization', function($g)
+		{
+			$g->name = 'Localizations';
+
+			$g->permission('localization.index', function($p)
+			{
+				$p->label = trans('sanatorium/localization::localizations/permissions.index');
+
+				$p->controller('Sanatorium\Localization\Controllers\Admin\LocalizationsController', 'index, grid');
+			});
+
+			$g->permission('localization.create', function($p)
+			{
+				$p->label = trans('sanatorium/localization::localizations/permissions.create');
+
+				$p->controller('Sanatorium\Localization\Controllers\Admin\LocalizationsController', 'create, store');
+			});
+
+			$g->permission('localization.edit', function($p)
+			{
+				$p->label = trans('sanatorium/localization::localizations/permissions.edit');
+
+				$p->controller('Sanatorium\Localization\Controllers\Admin\LocalizationsController', 'edit, update');
+			});
+
+			$g->permission('localization.delete', function($p)
+			{
+				$p->label = trans('sanatorium/localization::localizations/permissions.delete');
+
+				$p->controller('Sanatorium\Localization\Controllers\Admin\LocalizationsController', 'delete');
+			});
+		});
 	},
 
 	/*
@@ -366,13 +503,22 @@ return [
 				'uri' => 'localization/translations',
 				'regex' => '/:admin\/localization\/translations/i',
 				'slug' => 'admin-sanatorium-localization-translations',
-			],
-			[
-				'class' => 'fa fa-language',
-				'name' => 'Languages',
-				'uri' => 'localization/languages',
-				'regex' => '/:admin\/localization\/language/i',
-				'slug' => 'admin-sanatorium-localization-language',
+				'children' => [
+					[
+						'class' => 'fa fa-language',
+						'name' => 'Languages',
+						'uri' => 'localization/languages',
+						'regex' => '/:admin\/localization\/language/i',
+						'slug' => 'admin-sanatorium-localization-language',
+					],
+					[
+						'class' => 'fa fa-circle-o',
+						'name' => 'Localizations',
+						'uri' => 'localization/localizations',
+						'regex' => '/:admin\/localization\/localization/i',
+						'slug' => 'admin-sanatorium-localization-localization',
+					],
+				],
 			],
 		],
 		'main' => [

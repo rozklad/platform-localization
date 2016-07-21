@@ -1,7 +1,7 @@
 <?php namespace Sanatorium\Localization\Widgets;
 
 use App;
-use Sanatorium\Localization\Models\Translations;
+use Sanatorium\Localization\Models\Localization;
 
 class Language {
 
@@ -13,7 +13,7 @@ class Language {
 			$lang = App::getLocale();
 		}
 
-		$translation = Translations::where('locale', $lang)
+		$translation = Localization::where('locale', $lang)
 							->where('entity_id', $object->id)
 							->where('entity_field', $key)
 							->where('entity_type', get_class($object))

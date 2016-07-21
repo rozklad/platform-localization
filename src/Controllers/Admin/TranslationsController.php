@@ -97,4 +97,14 @@ class TranslationsController extends AdminController {
 
 	}
 
+	public function entities()
+    {
+
+    }
+
+    public function entitiesUpdate()
+    {
+
+    }
+
 }

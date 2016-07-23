@@ -290,13 +290,12 @@ class StringsController extends AdminController
                 {
                     $translations = $groups[ $group ];
 
-                    if ( empty($namespace) ) {
-                        $langPath = $this->app->langPath();
-                    } else {
-                        $langPath = $this->extensions->find($namespace)->getPath() . '/lang';
-                    }
+                    $langPath = $this->app->langPath();
 
-                    $path =  $langPath . '/' . $locale . '/' . $group . '.php';
+                    if ( $namespace )
+                        $path =  $langPath . '/override/' . config('cache.prefix') . '/' . $namespace . '/' . $locale . '/' . $group . '.php';
+                    else
+                        $path =  $langPath . '/override/' . config('cache.prefix') . '/' . $locale . '/' . $group . '.php';
 
                     // Make a backup if something went wrong
                     if ( $backup )

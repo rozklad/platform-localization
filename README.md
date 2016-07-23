@@ -26,16 +26,29 @@ Add following line to app/Http/Kernel.php
         \Sanatorium\Localization\Middleware\Locale::class
     ];
 
-### Register new localized entity
+### Localize entity field
+
+#### Register new localized entity
 
     // Register new localized entity
     $this->app['sanatorium.localization.localized']->localize(
         'Platform\Menus\Models\Menu'
     );
 
-### Localize entity field
+#### Localize entity field
 
     @localize($entity, 'field')
+    
+### Localize strings
+
+General app and package language strings can be changed from
+
+    /resources/langs/override/{LOCALE}
+    /resources/langs/override/{VENDOR}/{PACKAGE}/{LOCALE}
+    
+These language strings are managed from
+
+    /admin/localization/translations
 
 ## Documentation
 
@@ -49,8 +62,9 @@ Manage string translation in localization files.
 
 ## Changelog
 
-- 0.3.0 - 2016-23-05 - Translation strings manager
-- 0.2.3 - 2016-22-05 - Basic readme file
+- 0.4.0 - 2016-07-23 - Translation strings override, entity field localization
+- 0.3.0 - 2016-05-23 - Translation strings manager
+- 0.2.3 - 2016-05-22 - Basic readme file
 
 ## Support
 

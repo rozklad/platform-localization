@@ -40,7 +40,7 @@ class TranslationsController extends AdminController {
 		return view('sanatorium/localization::translations.index', compact('namespaces', 'locales'));
 	}
 
-	public function namespace()
+	public function getnamespace()
 	{
 		$namespace = request()->get('namespace');
 

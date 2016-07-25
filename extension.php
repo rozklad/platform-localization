@@ -67,7 +67,7 @@ return [
 	|
 	*/
 
-	'version' => '0.4.0',
+	'version' => '0.4.1',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -192,7 +192,7 @@ return [
 			{
 				Route::get('/' , ['as' => 'admin.sanatorium.localization.translations.all', 'uses' => 'TranslationsController@index']);
 
-				Route::get('namespace' , ['as' => 'admin.sanatorium.localization.translations.namespace', 'uses' => 'TranslationsController@namespace']);
+				Route::get('namespace' , ['as' => 'admin.sanatorium.localization.translations.namespace', 'uses' => 'TranslationsController@getnamespace']);
 
 				Route::post('edit' , ['as' => 'admin.sanatorium.localization.translations.update', 'uses' => 'TranslationsController@update']);
 			});

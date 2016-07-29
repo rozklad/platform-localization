@@ -56,6 +56,7 @@ class LanguageServiceProvider extends ServiceProvider {
     {
         $hooks = [
             'shop.header' => 'sanatorium/localization::hooks.languages',
+            'language.switch' => 'sanatorium/localization::hooks.languages',
         ];
 
         $manager = $this->app['sanatorium.hooks.manager'];

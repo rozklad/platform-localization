@@ -1,14 +1,14 @@
 <?php namespace Sanatorium\Localization\Widgets;
 
-use Sanatorium\Localization\Models\Language;
+use Sanatorium\Localization\Models\Language as LanguageModel;
 
 class Hooks {
 
 	public function languages($class = null)
 	{
-		$languages = Language::all();
+		$languages =  LanguageModel::all();
 
-		$active_language = Language::where( 'locale', Language::getActiveLanguageLocale() )->first();
+		$active_language =  LanguageModel::where( 'locale',  LanguageModel::getActiveLanguageLocale() )->first();
 
 		if ( !$languages )
 			return null;

@@ -78,18 +78,16 @@ class TranslationsController extends AdminController {
 			'key'       => $data['key'],
 			'namespace' => $data['namespace'],
 		]);
-
+        
 		// Check if the database is different then the files
-		$newStatus = $translation->value === $value ? Translation::STATUS_SAVED : Translation::STATUS_CHANGED;
-		if ( $newStatus !== (int) $translation->status )
-		{
-			$translation->status = $newStatus;
-		}
-
-		if ( !$translation->value )
-		{
-			$translation->value = $value;
-		}
+		if ( $translation->value != $value )
+        {
+            $translation->value = $value;
+            $translation->status = Translation::STATUS_CHANGED;
+        } else
+        {
+            $translation->status = Translation::STATUS_SAVED;
+        }
 
 		$translation->save();
 

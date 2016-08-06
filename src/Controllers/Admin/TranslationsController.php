@@ -78,7 +78,7 @@ class TranslationsController extends AdminController {
 			'key'       => $data['key'],
 			'namespace' => $data['namespace'],
 		]);
-        
+
 		// Check if the database is different then the files
 		if ( $translation->value != $value )
         {

@@ -50,6 +50,13 @@
 
 			}
 
+		}).on('save', function(){
+			// Automatically jump to next editable on save
+			var that = this,
+				index = $(that).parents('td:first').index();
+			setTimeout(function() {
+				$(that).closest('tr').next().find('td:nth-child('+(index + 1)+')').find('.editable').editable('show');
+			}, 200);
 		});
 	}
 

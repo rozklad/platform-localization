@@ -67,7 +67,7 @@ return [
 	|
 	*/
 
-	'version' => '3.0.2',
+	'version' => '3.0.3',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -235,6 +235,16 @@ return [
 		{
 			Route::get('/', ['as' => 'sanatorium.localization.localizations.index', 'uses' => 'LocalizationsController@index']);
 		});
+
+        Route::group([
+            'prefix' => admin_uri() . '/localization/po',
+            'namespace' => 'Sanatorium\Localization\Controllers\Admin',
+        ], function()
+        {
+            Route::get('export', ['as' => 'sanatorium.localization.po.export', 'uses' => 'PoController@export']);
+            Route::get('import', ['as' => 'sanatorium.localization.po.import', 'uses' => 'PoController@import']);
+            Route::post('import', ['as' => 'sanatorium.localization.po.import', 'uses' => 'PoController@processImport']);
+        });
 	},
 
 	/*

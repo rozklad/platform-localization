@@ -49,16 +49,57 @@ class PoController extends AdminController
     public function processImport()
     {
         $request = request();
+        $locale = request()->has('locale') ? request()->get('locale') : 'de';
+        $created = 0;
 
-        if ( $request->hasFile('po') ) {
+        if ( $request->hasFile('po') )
+        {
 
-            $path = storage_path();
+            $path = storage_path('po/import');
             $filename = date('YmdHis') . '.po';
             $filepath = $path . '/' . $filename;
 
             $request->file('po')->move( $path, $filename );
 
-            dd($filepath);
+            $fileHandler = new \Sepia\FileHandler($filepath);
+
+            $poParser = new \Sepia\PoParser($fileHandler);
+            $entries  = $poParser->parse();
+
+            foreach( $entries as $key => $entry )
+            {
+                $entries[$key] = [
+                    'tcomment' => str_replace(["\x07", '\\'], ['/a', '/'], $entry['tcomment'][0]),
+                    'msgid' => $entry['msgid'][0],
+                    'msgstr' => $entry['msgstr'][0]
+                ];
+            }
+
+            foreach( $entries as $key => $entry )
+            {
+                // @todo: finding by value is not 100%
+                $translation = $this->translations->where('value', $entry['msgid'])->first();
+
+                if ( is_object($translation) && $entry['msgstr'] != '' )
+                {
+                    $created++;
+
+                    $array = $translation->toArray();
+                    $array['locale'] = $locale;
+                    $array['value'] = $entry['msgstr'];
+                    $array['status'] = \Sanatorium\Localization\Models\Translation::STATUS_CHANGED;
+                    unset($array['created_at']);
+                    unset($array['updated_at']);
+                    unset($array['values']);
+                    unset($array['id']);
+                    $this->translations->firstOrCreate($array);
+                }
+
+            }
+
+            return [
+                'created' => $created
+            ];
 
         } else {
 

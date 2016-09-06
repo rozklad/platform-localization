@@ -48,7 +48,24 @@ class PoController extends AdminController
 
     public function processImport()
     {
-        dd('some');
+        $request = request();
+
+        if ( $request->hasFile('po') ) {
+
+            $path = storage_path();
+            $filename = date('YmdHis') . '.po';
+            $filepath = $path . '/' . $filename;
+
+            $request->file('po')->move( $path, $filename );
+
+            dd($filepath);
+
+        } else {
+
+            return redirect()->back();
+
+        }
+
     }
 
 

@@ -49,19 +49,31 @@
 
         </header>
 
-        <div class="panel-body">
+        <form method="POST" enctype="multipart/form-data">
 
-            <div class="form-group">
+            <div class="panel-body">
 
-                <label for="po" class="control-label">
-                    {{{ trans('sanatorium/localization::po/common.label') }}}
-                </label>
+                <div class="form-group">
 
-                <input type="file" id="po" name="po">
+                    <label for="po" class="control-label">
+                        {{{ trans('sanatorium/localization::po/common.label') }}}
+                    </label>
+
+                    <input type="file" id="po" name="po">
+
+                </div>
+
+                <div class="form-group">
+
+                    <button type="submit" class="btn btn-default">
+                        {{ trans('action.save') }}
+                    </button>
+
+                </div>
 
             </div>
 
-        </div>
+        </form>
 
     </section>
 

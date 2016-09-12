@@ -173,6 +173,9 @@ class StringsController extends AdminController
                     {
                         foreach ( array_dot($translations) as $key => $value )
                         {
+                            if ( $locale == 'override' )
+                                continue;
+
                             $value = (string) $value;
                             $translation = Translation::firstOrNew([
                                 'locale'    => $locale,

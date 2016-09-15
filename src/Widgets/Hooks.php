@@ -6,7 +6,7 @@ class Hooks {
 
 	public function languages($class = null)
 	{
-		$languages =  LanguageModel::all();
+		$languages =  app('sanatorium.localization.language')->findAll();
 
 		$active_language =  LanguageModel::where( 'locale',  LanguageModel::getActiveLanguageLocale() )->first();
 

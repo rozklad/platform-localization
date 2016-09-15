@@ -62,6 +62,7 @@ Manage string translation in localization files.
 
 ## Changelog
 
+- 3.0.9 - 2016-09-15 - Platform 5, caching
 - 0.4.0 - 2016-07-23 - Translation strings override, entity field localization
 - 0.3.0 - 2016-05-23 - Translation strings manager
 - 0.2.3 - 2016-05-22 - Basic readme file

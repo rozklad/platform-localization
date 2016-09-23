@@ -44,7 +44,7 @@ class Language {
 
 	}
 
-	public static function set($object, $key, $locale, $entity_value = null)
+	public static function set($object, $key, $locale, $entity_value = null, $default_cache_key = 'localize')
     {
         if ( !is_object($object) )
             return false;
@@ -62,6 +62,9 @@ class Language {
         ]);
 
         $localization->entity_value = $entity_value;
+
+        // Forget cache from get
+        Cache::forget(implode('.', [$default_cache_key, $locale, $entity_type, $entity_id, $entity_field]));
 
         return $localization->save();
     }

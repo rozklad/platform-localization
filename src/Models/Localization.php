@@ -52,7 +52,7 @@ class Localization extends Model implements EntityInterface {
      */
     public function setEntityValueAttribute($entity_value)
     {
-        $this->attributes['entity_value'] = ! is_array($entity_value) ? 'JSON_ENCODED:' . json_encode($entity_value) : $entity_value;
+        $this->attributes['entity_value'] = is_array($entity_value) ? 'JSON_ENCODED:' . json_encode($entity_value) : $entity_value;
     }
 
 }

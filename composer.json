@@ -35,6 +35,9 @@
 			"database/migrations",
 			"database/seeds"
 		],
+		"files": [
+			"src/helpers.php"
+		],
 		"psr-4": {
 			"Sanatorium\\Localization\\": "src/"
 		}

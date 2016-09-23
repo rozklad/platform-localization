@@ -2,6 +2,14 @@
 
 Localization
 
+## Contents
+
+1. [Installation](#installation)
+2. [Documentation](#documentation)
+3. [Changelog](#changelog)
+4. [Support](#support)
+5. [Hooks](#hooks)
+
 ## Installation
 
 ### Composer
@@ -60,8 +68,15 @@ Manage languages available for the users on the site.
 
 Manage string translation in localization files.
 
+### Functions
+
+    transattr($slug, $fallback = null, $locale = null)
+
+    transvalue($slug, $fallback = null, $locale = null)
+
 ## Changelog
 
+- 3.1.1 - 2016-09-23 - Helper functions
 - 3.0.9 - 2016-09-15 - Platform 5, caching
 - 0.4.0 - 2016-07-23 - Translation strings override, entity field localization
 - 0.3.0 - 2016-05-23 - Translation strings manager
@@ -70,3 +85,8 @@ Manage string translation in localization files.
 ## Support
 
 Support not available.
+
+## Hooks
+
+    'shop.header' => 'sanatorium/localization::hooks.languages',  // @deprecated
+    'language.switch' => 'sanatorium/localization::hooks.languages',

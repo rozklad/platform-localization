@@ -33,4 +33,26 @@ class Localization extends Model implements EntityInterface {
 	 */
 	protected static $entityNamespace = 'sanatorium/localization.localization';
 
+    /**
+     * Get mutator for the "entity_value" attribute.
+     *
+     * @param  string  $entity_value
+     * @return array
+     */
+    public function getEntityValueAttribute($entity_value)
+    {
+        return strpos($entity_value, 'JSON_ENCODED:') === 0 ? json_decode(str_replace('JSON_ENCODED:', '', $entity_value), true) : $entity_value;
+    }
+
+    /**
+     * Set mutator for the "entity_value" attribute.
+     *
+     * @param  array  $entity_value
+     * @return void
+     */
+    public function setEntityValueAttribute($entity_value)
+    {
+        $this->attributes['entity_value'] = ! is_array($entity_value) ? 'JSON_ENCODED:' . json_encode($entity_value) : $entity_value;
+    }
+
 }

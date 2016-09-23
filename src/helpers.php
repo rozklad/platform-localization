@@ -15,10 +15,37 @@ if (! function_exists('transattr')) {
      * @param $slug     string Slug of attribute
      * @param $fallback string Fallback value
      * @param $locale   string Locale (null for current language)
+     * @param $field    string Name of the field to translate
+     * @param $option   string Option (sub field)
      * @return mixed
      */
-    function transattr($slug, $fallback = null, $locale = null)
+    function transattr($slug, $fallback = null, $locale = null, $field = 'name', $option = null)
     {
+        $translation = null;
+        $object = app('platform.attributes')->findBySlug($slug);
+
+        if ( is_object($object) )
+        {
+            $translation = \Sanatorium\Localization\Widgets\Language::get($object, $field, $locale);
+        }
+
+        if ( $translation )
+        {
+            if ( !is_null($option) && is_array($translation) )
+            {
+                return isset($translation[$option]) ? $translation[$option] : $fallback;
+            } else {
+                return $translation;
+            }
+        }
+
+        // If field is specified, return null
+        if ( $field )
+            return null;
+
+        // @deprecated
+        // @todo: Following logic should be deprecated
+
         $lang_slug = 'attributes.'.$slug;
         $value = trans($lang_slug);
 

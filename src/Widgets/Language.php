@@ -6,7 +6,12 @@ use Sanatorium\Localization\Models\Localization;
 
 class Language {
 
-	public function show($object = null, $key = null, $locale = null, $default_cache_key = 'localize')
+    public static function show($object = null, $key = null, $locale = null, $default_cache_key = 'localize')
+    {
+        return self::get($object, $key, $locale, $default_cache_key);
+    }
+
+	public static function get($object = null, $key = null, $locale = null, $default_cache_key = 'localize')
 	{
 		$fallback = $object->{$key};
 
@@ -38,5 +43,27 @@ class Language {
         });
 
 	}
+
+	public static function set($object, $key, $locale, $entity_value = null)
+    {
+        if ( !is_object($object) )
+            return false;
+
+        $entity_id = $object->id;
+        $entity_type = get_class($object);
+        $entity_field = $key;
+
+        // Find localization for the given setup or create
+        $localization = Localization::firstOrCreate([
+            'entity_id'     => $entity_id,
+            'entity_type'   => $entity_type,
+            'entity_field'  => $entity_field,
+            'locale'        => $locale
+        ]);
+
+        $localization->entity_value = $entity_value;
+
+        return $localization->save();
+    }
 
 }

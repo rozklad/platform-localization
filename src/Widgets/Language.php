@@ -6,12 +6,12 @@ use Sanatorium\Localization\Models\Localization;
 
 class Language {
 
-    public static function show($object = null, $key = null, $locale = null, $default_cache_key = 'localize')
+    public static function show($object = null, $key = null, $locale = null, $default_cache_key = 'localize_string', $use_fallback = true)
     {
-        return self::get($object, $key, $locale, $default_cache_key);
+        return self::get($object, $key, $locale, $default_cache_key, $use_fallback);
     }
 
-	public static function get($object = null, $key = null, $locale = null, $default_cache_key = 'localize')
+	public static function get($object = null, $key = null, $locale = null, $default_cache_key = 'localize_string', $use_fallback = false)
 	{
 		$fallback = $object->{$key};
 
@@ -25,7 +25,7 @@ class Language {
 
 		$cache_key = implode('.', [$default_cache_key, $locale, $entity_type, $entity_id, $entity_field]);
 
-        return Cache::rememberForever($cache_key, function() use ($fallback, $locale, $entity_id, $entity_field, $entity_type) {
+        return Cache::rememberForever($cache_key, function() use ($fallback, $locale, $entity_id, $entity_field, $entity_type, $use_fallback) {
 
             $translation = Localization::where('locale', $locale)
                 ->where('entity_id', $entity_id)
@@ -37,6 +37,9 @@ class Language {
             {
                 return $translation->entity_value;
             }
+
+            if ( !$use_fallback)
+                return null;
 
             return $fallback;
 

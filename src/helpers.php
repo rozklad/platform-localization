@@ -44,7 +44,7 @@ if (! function_exists('transattr')) {
         }
 
         // If field is specified, return null
-        if ( $field )
+        if ( $field != 'name' )
             return null;
 
         // @deprecated

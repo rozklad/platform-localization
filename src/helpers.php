@@ -33,7 +33,7 @@ if (! function_exists('transattr')) {
         {
             if ( !is_null($option) && is_array($translation) )
             {
-                if ( is_string($translation[$option]) )
+                if ( isset($translation[$option]) && is_string($translation[$option]) )
                     return isset($translation[$option]) ? $translation[$option] : $fallback;
                 return $fallback;
             } else {

@@ -78,3 +78,10 @@ if (! function_exists('transvalue')) {
         return $value;
     }
 }
+
+if (! function_exists('get_active_language') ) {
+    function get_active_language()
+    {
+        return Sanatorium\Localization\Models\Language::getActiveLanguageLocale();
+    }
+}

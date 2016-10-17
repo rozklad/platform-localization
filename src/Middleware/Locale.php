@@ -15,12 +15,14 @@ class Locale
      */
     public function handle($request, Closure $next)
     {
+        // One run language change (not persistent)
         if ( $request->has('locale') ) {
 
             app()->setLocale($request->get('locale'));
 
         }
 
+        // Persistent language settings
         if ( Session::has('active_language_locale') ) {
 
             app()->setLocale(Session::get('active_language_locale'));

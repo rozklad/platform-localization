@@ -64,6 +64,12 @@ These language strings are managed from
 
 Manage languages available for the users on the site.
 
+### Single request locale setting
+
+Set GET param 'locale' to any supported locale, like this
+
+    http://example.com/?lang=en
+
 ### Translations
 
 Manage string translation in localization files.

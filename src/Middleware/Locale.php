@@ -22,7 +22,15 @@ class Locale
 
         }
 
-        // Persistent language settings
+        // Persistent language change
+        if ( $request->has('active_locale') ) {
+
+            Session::set('active_language_locale', $request->get('active_locale'));
+            app()->setLocale($request->get('active_locale'));
+
+        }
+
+        // Persistent language change
         if ( Session::has('active_language_locale') ) {
 
             app()->setLocale(Session::get('active_language_locale'));

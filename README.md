@@ -68,7 +68,19 @@ Manage languages available for the users on the site.
 
 Set GET param 'locale' to any supported locale, like this
 
-    http://example.com/?lang=en
+    http://example.com/?locale=en
+    
+### Persistent locale setting
+
+#### From browser
+
+Set GET param 'active_locale' to any supported locale, like this
+
+    http://example.com/?active_locale=en
+
+#### In code
+
+Set ``active_language_locale`` session to desired locale.
 
 ### Translations
 

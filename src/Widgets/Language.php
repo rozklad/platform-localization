@@ -11,7 +11,7 @@ class Language {
         return self::get($object, $key, $locale, $default_cache_key, $use_fallback);
     }
 
-	public static function get($object = null, $key = null, $locale = null, $default_cache_key = 'localize_string', $use_fallback = false)
+	public static function get($object = null, $key = null, $locale = null, $default_cache_key = 'localize_string', $use_fallback = false, $cache = true)
 	{
 		$fallback = $object->{$key};
 
@@ -25,8 +25,29 @@ class Language {
 
 		$cache_key = implode('.', [$default_cache_key, $locale, $entity_type, $entity_id, $entity_field]);
 
-        return Cache::rememberForever($cache_key, function() use ($fallback, $locale, $entity_id, $entity_field, $entity_type, $use_fallback) {
+        if ( $cache )
+        {
+            return Cache::rememberForever($cache_key, function () use ($fallback, $locale, $entity_id, $entity_field, $entity_type, $use_fallback)
+            {
 
+                $translation = Localization::where('locale', $locale)
+                    ->where('entity_id', $entity_id)
+                    ->where('entity_field', $entity_field)
+                    ->where('entity_type', $entity_type)
+                    ->first();
+
+                if ( $translation )
+                {
+                    return $translation->entity_value;
+                }
+
+                if ( !$use_fallback )
+                    return null;
+
+                return $fallback;
+
+            });
+        } else {
             $translation = Localization::where('locale', $locale)
                 ->where('entity_id', $entity_id)
                 ->where('entity_field', $entity_field)
@@ -38,12 +59,11 @@ class Language {
                 return $translation->entity_value;
             }
 
-            if ( !$use_fallback)
+            if ( !$use_fallback )
                 return null;
 
             return $fallback;
-
-        });
+        }
 
 	}
 

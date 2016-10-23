@@ -34,6 +34,30 @@ Add following line to app/Http/Kernel.php
         \Sanatorium\Localization\Middleware\Locale::class
     ];
 
+## Documentation
+
+There are two terms used throughout this package - Localization and Translation, let's describe the difference:
+
+### Localization
+
+We use **localization** for localized value of entity key. For example used like this:
+
+```
+{{-- Original value --}}
+{{ $page->meta_title }}
+
+{{-- Localized value --}}
+@localize($page, 'meta_title')
+```
+
+### Translation
+
+Translation refers to original translation feature of Laravel and does not need any special markup. Special admin screen to manage translations is provided.
+
+```
+trans('platform/pages::common.title')
+```
+
 ### Localize entity field
 
 #### Register new localized entity
@@ -47,7 +71,7 @@ Add following line to app/Http/Kernel.php
 
     @localize($entity, 'field')
     
-### Localize strings
+### Translate strings
 
 General app and package language strings can be changed from
 
@@ -57,8 +81,6 @@ General app and package language strings can be changed from
 These language strings are managed from
 
     /admin/localization/translations
-
-## Documentation
 
 ### Languages
 

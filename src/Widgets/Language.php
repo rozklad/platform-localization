@@ -6,90 +6,25 @@ use Sanatorium\Localization\Models\Localization;
 
 class Language {
 
-    public static function show($object = null, $key = null, $locale = null, $default_cache_key = 'localize_string', $use_fallback = true)
+    public static function show($object = null, $key = null, $locale = null, $default_cache_key = null, $use_fallback = true, $cache = true)
     {
-        return self::get($object, $key, $locale, $default_cache_key, $use_fallback);
+        return app('sanatorium.localization.localization')->get($object, $key, $locale, $default_cache_key, $use_fallback, $cache);
     }
 
-	public static function get($object = null, $key = null, $locale = null, $default_cache_key = 'localize_string', $use_fallback = false, $cache = true)
+    /**
+     * @deprecated
+     */
+	public static function get($object = null, $key = null, $locale = null, $default_cache_key = null, $use_fallback = false, $cache = true)
 	{
-		$fallback = $object->{$key};
-
-		if ( !isset($locale) ) {
-			$locale = App::getLocale();
-		}
-
-		$entity_id = $object->id;
-		$entity_type = get_class($object);
-        $entity_field = $key;
-
-		$cache_key = implode('.', [$default_cache_key, $locale, $entity_type, $entity_id, $entity_field]);
-
-        if ( $cache )
-        {
-            return Cache::rememberForever($cache_key, function () use ($fallback, $locale, $entity_id, $entity_field, $entity_type, $use_fallback)
-            {
-
-                $translation = Localization::where('locale', $locale)
-                    ->where('entity_id', $entity_id)
-                    ->where('entity_field', $entity_field)
-                    ->where('entity_type', $entity_type)
-                    ->first();
-
-                if ( $translation )
-                {
-                    return $translation->entity_value;
-                }
-
-                if ( !$use_fallback )
-                    return null;
-
-                return $fallback;
-
-            });
-        } else {
-            $translation = Localization::where('locale', $locale)
-                ->where('entity_id', $entity_id)
-                ->where('entity_field', $entity_field)
-                ->where('entity_type', $entity_type)
-                ->first();
-
-            if ( $translation )
-            {
-                return $translation->entity_value;
-            }
-
-            if ( !$use_fallback )
-                return null;
-
-            return $fallback;
-        }
-
+        return app('sanatorium.localization.localization')->get($object, $key, $locale, $default_cache_key, $use_fallback, $cache);
 	}
 
-	public static function set($object, $key, $locale, $entity_value = null, $default_cache_key = 'localize')
+    /**
+     * @deprecated
+     */
+	public static function set($object, $key, $locale, $entity_value = null, $default_cache_key = null)
     {
-        if ( !is_object($object) )
-            return false;
-
-        $entity_id = $object->id;
-        $entity_type = get_class($object);
-        $entity_field = $key;
-
-        // Find localization for the given setup or create
-        $localization = Localization::firstOrCreate([
-            'entity_id'     => $entity_id,
-            'entity_type'   => $entity_type,
-            'entity_field'  => $entity_field,
-            'locale'        => $locale
-        ]);
-
-        $localization->entity_value = $entity_value;
-
-        // Forget cache from get
-        Cache::forget(implode('.', [$default_cache_key, $locale, $entity_type, $entity_id, $entity_field]));
-
-        return $localization->save();
+        return app('sanatorium.localization.localization')->set($object, $key, $locale, $entity_value, $default_cache_key);
     }
 
 }

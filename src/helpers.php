@@ -26,8 +26,7 @@ if (! function_exists('transattr')) {
 
         if ( is_object($object) )
         {
-            // @todo: enable cache when resolved
-            $translation = \Sanatorium\Localization\Widgets\Language::get($object, $field, $locale, 'localize_string', false, false);
+            $translation = app('sanatorium.localization.localization')->get($object, $field, $locale, null, false);
         }
 
         if ( $translation )

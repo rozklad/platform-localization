@@ -1,5 +1,7 @@
 <?php namespace Sanatorium\Localization\Repositories\Localization;
 
+use App;
+use Cache;
 use Cartalyst\Support\Traits;
 use Illuminate\Container\Container;
 use Symfony\Component\Finder\Finder;
@@ -204,5 +206,123 @@ class LocalizationRepository implements LocalizationRepositoryInterface {
 
 		return $this->update($id, [ 'enabled' => false ]);
 	}
+
+    /**
+     * Base cache key for localization
+     * @var string
+     */
+	public static $default_cache_key = 'localize_repository';
+
+    /**
+     * Get entity key localization from database
+     *
+     * @param $locale
+     * @param $entity_id
+     * @param $entity_field
+     * @param $entity_type
+     * @return bool
+     */
+    public function getLocalizationValue($locale, $entity_id, $entity_field, $entity_type)
+    {
+        $translation = app('sanatorium.localization.localization')->where('locale', $locale)
+            ->where('entity_id', $entity_id)
+            ->where('entity_field', $entity_field)
+            ->where('entity_type', $entity_type)
+            ->first();
+
+        if ( $translation )
+        {
+            return $translation->entity_value;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get entity key localization
+     *
+     * @param null $object  Entity object (f.e. instance of Platform\Pages\Models\Page)
+     * @param null $key     Entity key (f.e. "meta_title")
+     * @param null $locale  Locale code (f.e. "de")
+     * @param null $default_cache_key   Default string for building cache key
+     * @param bool $use_fallback        Allow fallback (TRUE=use non-translated value of localization is not available)
+     * @param bool $cache               Allow cache
+     * @return string|null
+     */
+	public function get(
+	    $object = null,
+        $key = null,
+        $locale = null,
+        $default_cache_key = null,
+        $use_fallback = false,
+        $cache = true)
+    {
+        $fallback = $object->{$key};
+
+        $locale = isset($locale) ? $locale : App::getLocale();
+
+        $entity_id = $object->id;
+        $entity_type = get_class($object);
+        $entity_field = $key;
+
+        $cache_key = self::getCacheKey($locale, $entity_type, $entity_id, $entity_field, $default_cache_key);
+
+        if ( $cache && $value = Cache::get($cache_key) )
+        {
+            // If cached value is available
+        } else if ( $value = $this->getLocalizationValue($locale, $entity_id, $entity_field, $entity_type) )
+        {
+            // If value is found in database
+        } else if ( $use_fallback )
+        {
+            // If value is not available at all
+            $value = $fallback;
+        } else {
+            $value = null;
+        }
+
+        Cache::forever($cache_key, $value);
+
+        return $value;
+    }
+
+    public function set(
+        $object,
+        $key,
+        $locale,
+        $entity_value = null,
+        $default_cache_key = null)
+    {
+        if ( !is_object($object) )
+            return false;
+
+        $entity_id = $object->id;
+        $entity_type = get_class($object);
+        $entity_field = $key;
+
+        $cache_key = self::getCacheKey($locale, $entity_type, $entity_id, $entity_field, $default_cache_key);
+
+        // Find localization for the given setup or create
+        $localization = app('sanatorium.localization.localization')->firstOrCreate([
+            'entity_id'     => $entity_id,
+            'entity_type'   => $entity_type,
+            'entity_field'  => $entity_field,
+            'locale'        => $locale
+        ]);
+
+        $localization->entity_value = $entity_value;
+
+        // Forget cache key
+        Cache::forget($cache_key);
+
+        return $localization->save();
+    }
+
+    public static function getCacheKey($locale, $entity_type, $entity_id, $entity_field, $default_cache_key = null)
+    {
+        $default_cache_key = is_null($default_cache_key) ? $default_cache_key : self::$default_cache_key;
+
+        return implode('.', [$default_cache_key, $locale, $entity_type, $entity_id, $entity_field]);
+    }
 
 }
